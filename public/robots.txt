@@ -1,0 +1,5 @@
+# robots.txt for WebSocket Serverless Admin Demo
+User-agent: *
+Allow: /
+
+Sitemap: https://mcontartesi.github.io/websocket-serverless/sitemap.xml

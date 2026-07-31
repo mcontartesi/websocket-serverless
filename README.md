@@ -51,9 +51,17 @@ Designed as a modern serverless successor to self-hosted servers like Poxa (Elix
 
 ---
 
-## One-Click Deployment
+## Live Demo & One-Click Deployment
 
-Deploy directly to your Cloudflare account using the Cloudflare Workers Deploy button:
+### 🌐 Live Admin Console Demo
+Explore the interactive frontend Admin Console on **GitHub Pages**:
+👉 **[https://mcontartesi.github.io/websocket-serverless/](https://mcontartesi.github.io/websocket-serverless/)**
+
+> [!NOTE]
+> The GitHub Pages link serves a static preview of the Admin Console UI. To run the live WebSocket engine with Cloudflare Workers & Durable Objects, use the 1-Click Deployment below.
+
+### ⚡ One-Click Cloudflare Deployment
+Deploy your own 100% serverless Pusher-compatible WebSocket server directly to Cloudflare:
 
 [![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/mcontartesi/websocket-serverless)
 

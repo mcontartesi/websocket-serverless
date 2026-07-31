@@ -5,6 +5,103 @@ document.addEventListener('DOMContentLoaded', () => {
   let activeChannel = null;
   let eventCounter = 0;
 
+  // --- GitHub Pages Demo Mode Detection ---
+  function isDemoMode() {
+    return (
+      window.IS_GITHUB_PAGES_DEMO === true ||
+      document.body.hasAttribute('data-demo-mode') ||
+      window.location.hostname.endsWith('github.io') ||
+      window.location.hostname.includes('github')
+    );
+  }
+
+  // --- Bilingual Translations for Demo Banner ---
+  const bannerTranslations = {
+    en: {
+      heading: 'Static Demo Preview (GitHub Pages)',
+      desc: 'This demo is hosted as a static site on <strong>GitHub Pages</strong>. GitHub Pages does not run server-side code, Cloudflare Workers, or Durable Objects. Full real-time WebSockets, Pusher protocol compatibility, and REST API triggers require deploying the worker engine to Cloudflare.',
+      step1Title: '1. Deploy Engine',
+      step1Desc: 'Click 1-Click Deploy to deploy to your Cloudflare account.',
+      step2Title: '2. Set Environment',
+      step2Desc: 'Configure ADMIN_PASSWORD & App Keys during setup.',
+      step3Title: '3. Go Live',
+      step3Desc: 'Enjoy 100% serverless WebSockets globally under 1 min!',
+      deployBtnText: 'Deploy to Cloudflare Workers (1-Click)',
+      repoBtnText: '🐙 View Repository on GitHub',
+    },
+    es: {
+      heading: 'Vista Previa de Demostración (GitHub Pages)',
+      desc: 'Esta demo está alojada como un sitio estático en <strong>GitHub Pages</strong>. GitHub Pages no ejecuta código de servidor, Cloudflare Workers ni Durable Objects. Las funciones completas de WebSockets en tiempo real, compatibilidad con el protocolo Pusher y activadores REST API requieren desplegar el motor en Cloudflare.',
+      step1Title: '1. Desplegar Motor',
+      step1Desc: 'Haz clic en Despliegue 1-Clic para enviar a tu cuenta de Cloudflare.',
+      step2Title: '2. Configurar Variables',
+      step2Desc: 'Establece tu ADMIN_PASSWORD y llaves de App en el setup.',
+      step3Title: '3. ¡En Vivo!',
+      step3Desc: '¡Disfruta WebSockets 100% serverless globalmente en < 1 min!',
+      deployBtnText: 'Desplegar en Cloudflare Workers (1-Clic)',
+      repoBtnText: '🐙 Ver Repositorio en GitHub',
+    },
+  };
+
+  function updateBannerLanguage(lang) {
+    const t = bannerTranslations[lang] || bannerTranslations.en;
+    const headingEl = document.getElementById('demo-banner-heading');
+    const descEl = document.getElementById('demo-banner-desc');
+    const step1TitleEl = document.getElementById('demo-step1-title');
+    const step1DescEl = document.getElementById('demo-step1-desc');
+    const step2TitleEl = document.getElementById('demo-step2-title');
+    const step2DescEl = document.getElementById('demo-step2-desc');
+    const step3TitleEl = document.getElementById('demo-step3-title');
+    const step3DescEl = document.getElementById('demo-step3-desc');
+    const deployTextEl = document.getElementById('btn-cf-deploy-text');
+    const repoLinkEl = document.getElementById('btn-gh-repo-link');
+
+    if (headingEl) headingEl.textContent = t.heading;
+    if (descEl) descEl.innerHTML = t.desc;
+    if (step1TitleEl) step1TitleEl.textContent = t.step1Title;
+    if (step1DescEl) step1DescEl.textContent = t.step1Desc;
+    if (step2TitleEl) step2TitleEl.textContent = t.step2Title;
+    if (step2DescEl) step2DescEl.textContent = t.step2Desc;
+    if (step3TitleEl) step3TitleEl.textContent = t.step3Title;
+    if (step3DescEl) step3DescEl.textContent = t.step3Desc;
+    if (deployTextEl) deployTextEl.textContent = t.deployBtnText;
+    if (repoLinkEl) repoLinkEl.textContent = t.repoBtnText;
+
+    const btnEn = document.getElementById('btn-lang-en');
+    const btnEs = document.getElementById('btn-lang-es');
+    if (btnEn) btnEn.classList.toggle('active', lang === 'en');
+    if (btnEs) btnEs.classList.toggle('active', lang === 'es');
+  }
+
+  function initDemoNoticeBanner() {
+    if (!isDemoMode()) return;
+
+    const demoBanner = document.getElementById('demo-notice-banner');
+    if (demoBanner) {
+      demoBanner.classList.remove('hidden');
+    }
+
+    const statusTextDisplay = document.getElementById('status-text-display');
+    if (statusTextDisplay) {
+      statusTextDisplay.textContent = 'GitHub Pages Demo Preview';
+    }
+
+    const btnLangEn = document.getElementById('btn-lang-en');
+    const btnLangEs = document.getElementById('btn-lang-es');
+
+    if (btnLangEn && btnLangEs) {
+      btnLangEn.addEventListener('click', () => updateBannerLanguage('en'));
+      btnLangEs.addEventListener('click', () => updateBannerLanguage('es'));
+
+      const userLang = (navigator.language || '').toLowerCase();
+      if (userLang.startsWith('es')) {
+        updateBannerLanguage('es');
+      } else {
+        updateBannerLanguage('en');
+      }
+    }
+  }
+
   // --- Admin Authentication & Cloudflare One Integration ---
   const loginModal = document.getElementById('login-modal');
   const loginForm = document.getElementById('login-form');
@@ -20,6 +117,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function checkAuth() {
+    if (isDemoMode()) {
+      initDemoNoticeBanner();
+      onAuthSuccess('Demo Visitor', 'GitHub Pages Demo');
+      return;
+    }
+
     try {
       // 1. Check if Cloudflare One / Access or active token authenticates automatically
       const res = await fetch('/api/admin/check-auth', {
@@ -54,7 +157,12 @@ document.addEventListener('DOMContentLoaded', () => {
     loginModal.classList.add('hidden');
     userBadge.classList.remove('hidden');
     userDisplayName.textContent = user || 'Admin';
-    authMethodBadge.textContent = method === 'cloudflare_one' ? 'Cloudflare One' : 'Password';
+    authMethodBadge.textContent =
+      method === 'cloudflare_one'
+        ? 'Cloudflare One'
+        : method === 'GitHub Pages Demo'
+          ? 'GitHub Pages Demo'
+          : 'Password';
     fetchMetrics();
     fetchAppCredentials();
   }
@@ -65,6 +173,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const username = document.getElementById('login-username').value;
     const password = document.getElementById('login-password').value;
+
+    if (isDemoMode()) {
+      onAuthSuccess(username || 'Demo Admin', 'GitHub Pages Demo');
+      showToast('Signed in to GitHub Pages Demo Console', 'info');
+      return;
+    }
 
     try {
       const res = await fetch('/api/admin/login', {
@@ -94,6 +208,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   async function fetchAppCredentials() {
+    if (isDemoMode()) {
+      document.getElementById('cred-app-id').value = 'ws-app';
+      document.getElementById('cred-app-key').value = 'ws-key';
+      document.getElementById('cred-app-secret').value = 'ws-secret';
+      return;
+    }
+
     try {
       const res = await fetch('/api/admin/info', { headers: getAuthHeaders() });
       if (res.ok) {
@@ -153,6 +274,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- Fetch Server Metrics & Channels ---
   async function fetchMetrics() {
+    if (isDemoMode()) {
+      document.getElementById('stat-connections').textContent = '42';
+      document.getElementById('stat-channels').textContent = '4';
+      renderChannelsTable({
+        'my-channel': { user_count: undefined },
+        'presence-chat-room': { user_count: 5 },
+        'private-user-101': { user_count: undefined },
+        'notifications-feed': { user_count: undefined },
+      });
+      return;
+    }
+
     try {
       const statusRes = await fetch('/health');
       if (statusRes.ok) {
@@ -254,6 +387,17 @@ document.addEventListener('DOMContentLoaded', () => {
       payload = rawPayload;
     }
 
+    if (isDemoMode()) {
+      eventCounter++;
+      document.getElementById('stat-events').textContent = eventCounter;
+      logDebug('event', `[Demo Broadcast] Simulated '${event}' on channel '${channel}'`);
+      showToast(
+        `⚡ [Demo Mode] Event '${event}' simulated. Deploy to Cloudflare Workers for live delivery.`,
+        'info',
+      );
+      return;
+    }
+
     try {
       const res = await fetch(`/apps/${appId}/events`, {
         method: 'POST',
@@ -298,6 +442,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const resBox = document.getElementById('studio-response');
     const resStatus = document.getElementById('studio-status-code');
     const resBody = document.getElementById('studio-response-body');
+
+    if (isDemoMode()) {
+      eventCounter++;
+      document.getElementById('stat-events').textContent = eventCounter;
+      resBox.classList.remove('hidden');
+      resStatus.textContent = '200 OK (Simulated Demo)';
+      resBody.textContent = JSON.stringify({ result: 'Event broadcast simulated in GitHub Pages demo mode' }, null, 2);
+      logDebug('event', `[Demo Event Studio] Published '${event}' to channel '${channel}'`);
+      showToast(`⚡ [Demo Mode] Published event '${event}' to channel '${channel}'`, 'info');
+      return;
+    }
 
     try {
       const response = await fetch(`/apps/${appId}/events`, {
@@ -346,6 +501,21 @@ document.addEventListener('DOMContentLoaded', () => {
         pusherClient.close();
       }
       pusherClient = null;
+    }
+
+    if (isDemoMode()) {
+      logDebug('system', `Connecting to Simulated Demo Socket on channel '${chName}'...`);
+      setTimeout(() => {
+        logDebug('system', `Pusher Handshake OK (Demo Mode)! Socket ID: demo-socket-8821`);
+        logDebug('system', `Subscribed successfully to channel '${chName}'`);
+        document.getElementById('stat-connections').textContent = '1';
+        logDebug('event', `Event: <strong>pusher:subscription_succeeded</strong> on <i>${chName}</i> <pre>{}</pre>`);
+        logDebug(
+          'event',
+          `Event: <strong>demo-greeting</strong> on <i>${chName}</i> <pre>{\n  "message": "Welcome to GitHub Pages Demo!",\n  "status": "Cloudflare Workers & Durable Objects required for live WebSockets"\n}</pre>`,
+        );
+      }, 500);
+      return;
     }
 
     logDebug('system', `Connecting to WebSocket server...`);
@@ -441,7 +611,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('stat-connections').textContent = '0';
       };
 
-      ws.onerror = (err) => {
+      ws.onerror = () => {
         logDebug('error', `Native WebSocket Error`);
       };
     } catch (err) {

@@ -924,3 +924,140 @@ body {
 .toast-close:hover {
   color: var(--text-main);
 }
+
+/* GitHub Pages Demo Notice Banner */
+.demo-banner {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(225, 29, 72, 0.12) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin: 16px 24px 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.demo-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, #f59e0b 0%, #e11d48 100%);
+}
+
+.demo-banner-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.demo-banner-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 15px;
+  color: #fbbf24;
+}
+
+.demo-banner-title .alert-icon {
+  font-size: 20px;
+}
+
+.demo-lang-switcher {
+  display: inline-flex;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.lang-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.lang-btn.active {
+  background: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 2px 8px var(--primary-glow);
+}
+
+.demo-banner-body {
+  color: var(--text-main);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.demo-banner-body p {
+  margin-bottom: 8px;
+}
+
+.demo-banner-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.demo-step-item {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12px;
+}
+
+.demo-step-item strong {
+  color: #f59e0b;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.demo-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.btn-cf-deploy {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #f6821f 0%, #faad3f 100%);
+  color: #000000;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(246, 130, 31, 0.35);
+  transition: all 0.2s ease;
+}
+
+.btn-cf-deploy:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(246, 130, 31, 0.5);
+}
+
+.btn-cf-deploy img {
+  height: 18px;
+}
+

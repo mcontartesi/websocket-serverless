@@ -3,7 +3,56 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WebSocket Serverless — Realtime WebSocket Console</title>
+  <title>WebSocket Serverless — 100% Serverless Pusher-Compatible Engine on Cloudflare Workers | Live Admin Demo</title>
+  
+  <!-- Primary SEO Meta Tags -->
+  <meta name="description" content="100% Serverless Pusher-compatible WebSocket Server built for Cloudflare Workers & Durable Objects. Zero server management, ultra-low latency, real-time pub/sub console demo. Deploy in 1-click to Cloudflare Workers. Created by Maximiliano Contartesi.">
+  <meta name="keywords" content="websocket, serverless, pusher alternative, pusher replacement, cloudflare workers, durable objects, real-time pubsub, websockets demo, typescript, hono, nodejs, web sockets, admin console, open source, maximiliano contartesi">
+  <meta name="author" content="Maximiliano Contartesi">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://mcontartesi.github.io/websocket-serverless/">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://mcontartesi.github.io/websocket-serverless/">
+  <meta property="og:title" content="WebSocket Serverless — Pusher Alternative for Cloudflare Workers & Durable Objects">
+  <meta property="og:description" content="Full Pusher-compatible WebSocket server on Cloudflare Workers & Durable Objects. Explore the live interactive admin console demo.">
+  <meta property="og:site_name" content="WebSocket Serverless Engine">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="es_ES">
+
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://mcontartesi.github.io/websocket-serverless/">
+  <meta name="twitter:title" content="WebSocket Serverless — 100% Cloudflare Workers Engine">
+  <meta name="twitter:description" content="Serverless WebSockets powered by Cloudflare Workers & Durable Objects. Live Admin Demo & 1-Click Deploy.">
+  <meta name="twitter:creator" content="@maxiconta">
+
+  <!-- JSON-LD Structured Data for SEO -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "WebSocket Serverless",
+    "url": "https://mcontartesi.github.io/websocket-serverless/",
+    "description": "100% Serverless Pusher-compatible WebSocket Server built for Cloudflare Workers and Durable Objects",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Cloudflare Workers / Edge Runtime",
+    "author": {
+      "@type": "Person",
+      "name": "Maximiliano Contartesi",
+      "url": "https://github.com/mcontartesi",
+      "sameAs": [
+        "https://www.linkedin.com/in/maxiconta/",
+        "https://medium.com/@maxiconta"
+      ]
+    },
+    "license": "https://opensource.org/licenses/MIT",
+    "softwareRequirements": "Cloudflare Workers, Durable Objects",
+    "codeRepository": "https://github.com/mcontartesi/websocket-serverless"
+  }
+  </script>
+
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -74,6 +123,49 @@
 
     <!-- Main Content Area -->
     <main class="main-content">
+      <!-- GitHub Pages Demo Notice Banner (Bilingual: EN / ES) -->
+      <div id="demo-notice-banner" class="demo-banner hidden" role="alert" aria-live="polite">
+        <div class="demo-banner-header">
+          <div class="demo-banner-title">
+            <span class="alert-icon">⚠️</span>
+            <span id="demo-banner-heading">Static Demo Preview (GitHub Pages)</span>
+          </div>
+          <div class="demo-lang-switcher" aria-label="Language Selector">
+            <button id="btn-lang-en" class="lang-btn active">🇬🇧 English</button>
+            <button id="btn-lang-es" class="lang-btn">🇪🇸 Español</button>
+          </div>
+        </div>
+
+        <div class="demo-banner-body">
+          <p id="demo-banner-desc">
+            This demo is hosted as a static site on <strong>GitHub Pages</strong>. GitHub Pages does not run server-side code, Cloudflare Workers, or Durable Objects. Full real-time WebSockets, Pusher protocol compatibility, and REST API triggers require deploying the worker engine to Cloudflare.
+          </p>
+          <div class="demo-banner-steps">
+            <div class="demo-step-item">
+              <strong id="demo-step1-title">1. Deploy Engine</strong>
+              <span id="demo-step1-desc">Click 1-Click Deploy to deploy to your Cloudflare account.</span>
+            </div>
+            <div class="demo-step-item">
+              <strong id="demo-step2-title">2. Set Environment</strong>
+              <span id="demo-step2-desc">Configure ADMIN_PASSWORD & App Keys during setup.</span>
+            </div>
+            <div class="demo-step-item">
+              <strong id="demo-step3-title">3. Go Live</strong>
+              <span id="demo-step3-desc">Enjoy 100% serverless WebSockets globally under 1 min!</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="demo-banner-actions">
+          <a href="https://deploy.workers.cloudflare.com/?url=https://github.com/mcontartesi/websocket-serverless" target="_blank" rel="noopener noreferrer" class="btn-cf-deploy" id="btn-cf-deploy-link">
+            ⚡ <span id="btn-cf-deploy-text">Deploy to Cloudflare Workers (1-Click)</span>
+          </a>
+          <a href="https://github.com/mcontartesi/websocket-serverless" target="_blank" rel="noopener noreferrer" class="btn btn-outline" id="btn-gh-repo-link">
+            🐙 View Repository on GitHub
+          </a>
+        </div>
+      </div>
+
       <!-- Top Header -->
       <header class="top-header">
         <div class="page-title">
@@ -89,9 +181,9 @@
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
             </button>
           </div>
-          <div class="status-indicator online">
+          <div class="status-indicator online" id="status-indicator-badge">
             <span class="dot"></span>
-            <span class="status-text">Cloudflare Workers Online</span>
+            <span class="status-text" id="status-text-display">Cloudflare Workers Online</span>
           </div>
           <button class="btn btn-outline" id="btn-refresh">
             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
