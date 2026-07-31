@@ -428,6 +428,7 @@ The project incorporates three automated GitHub Actions workflows:
 Created and maintained by **[Maximiliano Contartesi](https://github.com/mcontartesi)**.
 
 - **Email**: maxiconta [at] gmail [dot] com
+- **Medium**: [@maxiconta](https://medium.com/@maxiconta)
 - **LinkedIn**: [maxiconta](https://www.linkedin.com/in/maxiconta/)
 - **GitHub**: [@mcontartesi](https://github.com/mcontartesi)
 

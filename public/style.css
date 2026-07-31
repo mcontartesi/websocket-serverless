@@ -561,6 +561,16 @@ body {
   transition: all 0.2s ease;
 }
 
+.social-badge.medium {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--emerald);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.social-badge.medium:hover {
+  background: rgba(16, 185, 129, 0.3);
+}
+
 .social-badge.linkedin {
   background: rgba(10, 102, 194, 0.15);
   color: #38bdf8;
