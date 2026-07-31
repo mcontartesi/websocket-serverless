@@ -7,11 +7,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- GitHub Pages Demo Mode Detection ---
   function isDemoMode() {
+    const hostname = window.location.hostname;
     return (
       window.IS_GITHUB_PAGES_DEMO === true ||
       document.body.hasAttribute('data-demo-mode') ||
-      window.location.hostname.endsWith('github.io') ||
-      window.location.hostname.includes('github')
+      hostname === 'github.io' ||
+      hostname.endsWith('.github.io')
     );
   }
 
@@ -352,11 +353,21 @@ document.addEventListener('DOMContentLoaded', () => {
       info: 'ℹ️',
     };
 
-    toast.innerHTML = `
-      <span class="toast-icon">${icons[type] || 'ℹ️'}</span>
-      <div class="toast-body">${message}</div>
-      <button class="toast-close">&times;</button>
-    `;
+    const iconSpan = document.createElement('span');
+    iconSpan.className = 'toast-icon';
+    iconSpan.textContent = icons[type] || 'ℹ️';
+
+    const bodyDiv = document.createElement('div');
+    bodyDiv.className = 'toast-body';
+    bodyDiv.textContent = message;
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'toast-close';
+    closeBtn.innerHTML = '&times;';
+
+    toast.appendChild(iconSpan);
+    toast.appendChild(bodyDiv);
+    toast.appendChild(closeBtn);
 
     container.appendChild(toast);
 
@@ -624,7 +635,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const time = new Date().toLocaleTimeString();
     const entry = document.createElement('div');
     entry.className = `log-entry ${type}`;
-    entry.innerHTML = `<span class="log-time">[${time}]</span> <span class="log-msg">${msg}</span>`;
+
+    const timeSpan = document.createElement('span');
+    timeSpan.className = 'log-time';
+    timeSpan.textContent = `[${time}] `;
+
+    const msgSpan = document.createElement('span');
+    msgSpan.className = 'log-msg';
+    msgSpan.textContent = msg;
+
+    entry.appendChild(timeSpan);
+    entry.appendChild(msgSpan);
     logContainer.appendChild(entry);
     logContainer.scrollTop = logContainer.scrollHeight;
   }
