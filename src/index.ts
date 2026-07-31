@@ -90,6 +90,11 @@ export default {
         return Response.json({ error: 'Invalid JSON payload' }, { status: 400 });
       }
 
+      const eventName = payload.name || payload.event;
+      if (!eventName) {
+        return Response.json({ error: 'No event name specified' }, { status: 400 });
+      }
+
       const targetChannels = payload.channels || (payload.channel ? [payload.channel] : []);
       if (targetChannels.length === 0) {
         return Response.json({ error: 'No channel specified' }, { status: 400 });
@@ -102,7 +107,7 @@ export default {
         await stub.fetch('http://channel/broadcast', {
           method: 'POST',
           body: JSON.stringify({
-            event: payload.name,
+            event: eventName,
             data: payload.data,
             socket_id: payload.socket_id
           })
@@ -140,13 +145,14 @@ export default {
       }
 
       for (const item of payload.batch || []) {
-        if (!item.channel || !item.name) continue;
+        const itemEvent = item.name || item.event;
+        if (!item.channel || !itemEvent) continue;
         const doId = env.CHANNEL_DO.idFromName(`${appId}:${item.channel}`);
         const stub = env.CHANNEL_DO.get(doId);
         await stub.fetch('http://channel/broadcast', {
           method: 'POST',
           body: JSON.stringify({
-            event: item.name,
+            event: itemEvent,
             data: item.data,
             socket_id: item.socket_id
           })

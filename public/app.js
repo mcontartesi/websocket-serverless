@@ -243,6 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const channel = document.getElementById('quick-channel').value;
     const event = document.getElementById('quick-event').value;
     const rawPayload = document.getElementById('quick-payload').value;
+    const appId = document.getElementById('cred-app-id')?.value || 'ws-app';
 
     let payload;
     try {
@@ -252,12 +253,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     try {
-      const res = await fetch('/apps/ws-app/events', {
+      const res = await fetch(`/apps/${appId}/events`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify({
           channel,
           name: event,
+          event: event,
           data: payload
         })
       });
@@ -268,7 +270,8 @@ document.addEventListener('DOMContentLoaded', () => {
         logDebug('event', `[REST Broadcast] Triggered '${event}' on '${channel}' successfully`);
         showToast(`Event '${event}' broadcasted successfully!`, 'success');
       } else {
-        showToast('Failed to broadcast event', 'error');
+        const errText = await res.text();
+        showToast(`Failed to broadcast event (${res.status}): ${errText || res.statusText}`, 'error');
       }
     } catch (e) {
       showToast('Error sending request: ' + e.message, 'error');
@@ -281,6 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const channel = document.getElementById('studio-channel').value;
     const event = document.getElementById('studio-event').value;
     const rawData = document.getElementById('studio-data').value;
+    const appId = document.getElementById('cred-app-id')?.value || 'ws-app';
 
     let data;
     try { data = JSON.parse(rawData); } catch { data = rawData; }
@@ -290,10 +294,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const resBody = document.getElementById('studio-response-body');
 
     try {
-      const response = await fetch('/apps/ws-app/events', {
+      const response = await fetch(`/apps/${appId}/events`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-        body: JSON.stringify({ channel, name: event, data })
+        body: JSON.stringify({ channel, name: event, event: event, data })
       });
 
       resBox.classList.remove('hidden');
@@ -307,7 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
         logDebug('event', `[Event Studio] Published '${event}' to channel '${channel}'`);
         showToast(`Event '${event}' published to channel '${channel}'`, 'success');
       } else {
-        showToast(`Failed to publish event (${response.status})`, 'error');
+        showToast(`Failed to publish event (${response.status}): ${resText || response.statusText}`, 'error');
       }
     } catch (err) {
       resBox.classList.remove('hidden');
