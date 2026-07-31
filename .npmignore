@@ -1,0 +1,14 @@
+# Source control & CI
+.github/
+.releaserc.json
+.gitignore
+vitest.config.ts
+
+# Tests & Mocks
+tests/
+
+# Temp & Logs
+.wrangler/
+.dev.vars
+node_modules/
+*.log

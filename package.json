@@ -1,0 +1,38 @@
+{
+  "name": "websocket-serverless",
+  "version": "1.0.0",
+  "description": "100% Serverless Pusher-compatible WebSocket Server built for Cloudflare Workers and Durable Objects",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "build": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "pusher",
+    "websocket",
+    "serverless",
+    "cloudflare-workers",
+    "durable-objects",
+    "realtime",
+    "pubsub",
+    "websockets"
+  ],
+  "author": "Maximiliano Contartesi",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mcontartesi/websocket-serverless.git"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241230.0",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "semantic-release": "^24.2.1",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8",
+    "wrangler": "^3.100.0"
+  }
+}

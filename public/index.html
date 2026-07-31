@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebSocket Serverless — Realtime WebSocket Console</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <!-- Pusher JS CDN for browser testing in console -->
+  <script src="https://js.pusher.com/8.0.1/pusher.min.js"></script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="url(#grad1)" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+              <linearGradient id="grad1" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#6366F1"/>
+                <stop offset="1" stop-color="#A855F7"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h2>WebSocket <span>Serverless</span></h2>
+          <span class="version-tag">v1.0.0</span>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <button class="nav-item active" data-tab="overview">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          Overview
+        </button>
+        <button class="nav-item" data-tab="studio">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+          Event Studio
+        </button>
+        <button class="nav-item" data-tab="debugger">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+          Live Debugger
+        </button>
+        <button class="nav-item" data-tab="channels">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          Channels Explorer
+        </button>
+        <button class="nav-item" data-tab="keys">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
+          App Credentials
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="author-badge">
+          <span>Created by</span>
+          <strong>Maximiliano Contartesi</strong>
+        </div>
+        <div class="footer-meta">
+          <span class="license-badge">MIT Open Source</span>
+          <a href="https://github.com/mcontartesi/websocket-serverless" target="_blank" rel="noopener noreferrer" class="github-link">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+            GitHub Repo
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Top Header -->
+      <header class="top-header">
+        <div class="page-title">
+          <h1 id="tab-title">Overview</h1>
+          <p id="tab-subtitle">Realtime engine metrics & serverless edge status</p>
+        </div>
+        <div class="header-actions">
+          <div id="user-badge" class="user-badge hidden">
+            <span class="user-icon">👤</span>
+            <span id="user-display-name">Admin</span>
+            <span id="auth-method-badge" class="method-badge">Password</span>
+            <button id="btn-logout" class="btn-icon" title="Logout">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            </button>
+          </div>
+          <div class="status-indicator online">
+            <span class="dot"></span>
+            <span class="status-text">Cloudflare Workers Online</span>
+          </div>
+          <button class="btn btn-outline" id="btn-refresh">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+            Refresh
+          </button>
+        </div>
+      </header>
+
+      <!-- Tab Content 1: Overview -->
+      <section id="tab-overview" class="tab-content active">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon purple">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            </div>
+            <div class="stat-details">
+              <span class="stat-label">Active Connections</span>
+              <h3 id="stat-connections" class="stat-value">--</h3>
+              <span class="stat-trend">Hibernated DO WebSockets</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon emerald">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            </div>
+            <div class="stat-details">
+              <span class="stat-label">Active Channels</span>
+              <h3 id="stat-channels" class="stat-value">--</h3>
+              <span class="stat-trend">Public, Private & Presence</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            </div>
+            <div class="stat-details">
+              <span class="stat-label">Events Delivered</span>
+              <h3 id="stat-events" class="stat-value">0</h3>
+              <span class="stat-trend">Since session start</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon amber">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            </div>
+            <div class="stat-details">
+              <span class="stat-label">Architecture</span>
+              <h3 class="stat-value text-sm">Durable Objects</h3>
+              <span class="stat-trend">Pusher Protocol v7</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2col mt-6">
+          <div class="card">
+            <div class="card-header">
+              <h3>⚡ Quick Broadcast Tester</h3>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label>Target Channel</label>
+                <input type="text" id="quick-channel" value="my-channel" class="input-field" placeholder="e.g. my-channel">
+              </div>
+              <div class="form-group">
+                <label>Event Name</label>
+                <input type="text" id="quick-event" value="my-event" class="input-field" placeholder="e.g. new-message">
+              </div>
+              <div class="form-group">
+                <label>Message Payload (JSON)</label>
+                <textarea id="quick-payload" class="textarea-field" rows="3">{"message": "Hello from WebSocket Serverless!", "timestamp": 1700000000}</textarea>
+              </div>
+              <button class="btn btn-primary btn-block" id="btn-quick-broadcast">
+                Broadcast Event via REST API
+              </button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>📡 Server & Author Information</h3>
+            </div>
+            <div class="card-body">
+              <div class="info-list">
+                <div class="info-item">
+                  <span class="info-key">Engine</span>
+                  <span class="info-val">WebSocket Serverless</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-key">Author & Maintainer</span>
+                  <span class="info-val">
+                    <a href="https://github.com/mcontartesi" target="_blank" class="author-link">Maximiliano Contartesi</a>
+                  </span>
+                </div>
+                <div class="info-item">
+                  <span class="info-key">Social Profiles</span>
+                  <span class="info-val social-links">
+                    <a href="https://www.linkedin.com/in/maxiconta/" target="_blank" rel="noopener" class="social-badge linkedin">💼 LinkedIn</a>
+                    <a href="https://github.com/mcontartesi" target="_blank" rel="noopener" class="social-badge github">🐙 GitHub</a>
+                  </span>
+                </div>
+                <div class="info-item">
+                  <span class="info-key">Protocol Version</span>
+                  <span class="info-val">v7 (JSON Envelope)</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-key">WebSockets API</span>
+                  <span class="info-val">Cloudflare Hibernation API</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-key">Related Cloudflare Tool</span>
+                  <span class="info-val">
+                    <a href="https://github.com/mcontartesi/health-monitor" target="_blank" rel="noopener" class="author-link">🏥 Health Monitor (Uptime & Status)</a>
+                  </span>
+                </div>
+                <div class="info-item">
+                  <span class="info-key">License</span>
+                  <span class="info-val">MIT</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tab Content 2: Event Studio -->
+      <section id="tab-studio" class="tab-content">
+        <div class="card">
+          <div class="card-header">
+            <h3>Event Trigger Studio</h3>
+            <p>Publish events via Pusher REST API to connected clients instantly.</p>
+          </div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Channel Name</label>
+                <input type="text" id="studio-channel" value="chat-room" class="input-field">
+              </div>
+              <div class="form-group">
+                <label>Event Name</label>
+                <input type="text" id="studio-event" value="message:created" class="input-field">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Data Payload (JSON)</label>
+              <textarea id="studio-data" class="textarea-field" rows="6">{\n  "user": "Maximiliano",\n  "text": "Hello WebSocket Serverless World!",\n  "created_at": "2026-07-31T13:46:00Z"\n}</textarea>
+            </div>
+            <button class="btn btn-primary" id="btn-studio-send">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+              Trigger Event Now
+            </button>
+
+            <div class="response-box mt-4 hidden" id="studio-response">
+              <h4>Response Status: <span id="studio-status-code">200 OK</span></h4>
+              <pre id="studio-response-body" class="code-block"></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tab Content 3: Live Debugger -->
+      <section id="tab-debugger" class="tab-content">
+        <div class="card">
+          <div class="card-header flex-between">
+            <div>
+              <h3>Realtime Socket Inspector</h3>
+              <p>Connects live to WebSocket server and streams incoming events.</p>
+            </div>
+            <div class="actions-group">
+              <input type="text" id="debug-channel" value="my-channel" class="input-field input-inline" placeholder="Channel to subscribe">
+              <button class="btn btn-emerald" id="btn-debug-connect">Connect & Subscribe</button>
+              <button class="btn btn-outline" id="btn-debug-clear">Clear Logs</button>
+            </div>
+          </div>
+          <div class="card-body p-0">
+            <div id="debug-log-container" class="log-stream">
+              <div class="log-entry system">
+                <span class="log-time">[System]</span>
+                <span class="log-msg">Ready to connect to WebSocket endpoint...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tab Content 4: Channels Explorer -->
+      <section id="tab-channels" class="tab-content">
+        <div class="card">
+          <div class="card-header flex-between">
+            <h3>Active Channels</h3>
+            <button class="btn btn-outline" id="btn-refresh-channels">Refresh List</button>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Channel Name</th>
+                    <th>Type</th>
+                    <th>Subscribers</th>
+                    <th>Occupancy</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="channels-table-body">
+                  <tr>
+                    <td colspan="5" class="text-center text-muted">Click Refresh to fetch active channels...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tab Content 5: App Credentials & Integration Snippets -->
+      <section id="tab-keys" class="tab-content">
+        <div class="card mb-6">
+          <div class="card-header">
+            <h3>App Credentials</h3>
+          </div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>App ID</label>
+                <input type="text" id="cred-app-id" readonly value="ws-app" class="input-field readonly">
+              </div>
+              <div class="form-group">
+                <label>App Key</label>
+                <input type="text" id="cred-app-key" readonly value="ws-key" class="input-field readonly">
+              </div>
+              <div class="form-group">
+                <label>App Secret</label>
+                <input type="text" id="cred-app-secret" readonly value="ws-secret" class="input-field readonly">
+              </div>
+              <div class="form-group">
+                <label>Cluster Name</label>
+                <input type="text" readonly value="cloudflare-serverless" class="input-field readonly">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Integration Snippets</h3>
+          </div>
+          <div class="card-body">
+            <div class="snippet-tabs">
+              <button class="snippet-tab active" data-snippet="js">JavaScript (Pusher JS)</button>
+              <button class="snippet-tab" data-snippet="echo">Laravel Echo</button>
+              <button class="snippet-tab" data-snippet="python">Python</button>
+              <button class="snippet-tab" data-snippet="curl">cURL REST API</button>
+            </div>
+
+            <div id="snippet-js" class="snippet-content active">
+              <pre class="code-block"><code>// Connect using official pusher-js library
+const pusher = new Pusher('ws-key', {
+  cluster: 'mt1',
+  wsHost: window.location.hostname,
+  wsPort: window.location.port || 443,
+  wssPort: window.location.port || 443,
+  forceTLS: window.location.protocol === 'https:',
+  disableStats: true,
+  enabledTransports: ['ws', 'wss']
+});
+
+const channel = pusher.subscribe('my-channel');
+channel.bind('my-event', function(data) {
+  console.log('Received event:', data);
+});</code></pre>
+            </div>
+
+            <div id="snippet-echo" class="snippet-content">
+              <pre class="code-block"><code>// Laravel Echo configuration
+import Echo from 'laravel-echo';
+import Pusher from 'pusher-js';
+
+window.Pusher = Pusher;
+
+window.Echo = new Echo({
+    broadcaster: 'pusher',
+    key: 'ws-key',
+    cluster: 'mt1',
+    wsHost: window.location.hostname,
+    wsPort: 443,
+    wssPort: 443,
+    forceTLS: true,
+    disableStats: true,
+    enabledTransports: ['ws', 'wss']
+});</code></pre>
+            </div>
+
+            <div id="snippet-python" class="snippet-content">
+              <pre class="code-block"><code>import pusher
+
+pusher_client = pusher.Pusher(
+  app_id='ws-app',
+  key='ws-key',
+  secret='ws-secret',
+  host='your-worker.workers.dev',
+  ssl=True
+)
+
+pusher_client.trigger('my-channel', 'my-event', {'message': 'Hello from Python'})</code></pre>
+            </div>
+
+            <div id="snippet-curl" class="snippet-content">
+              <pre class="code-block"><code>curl -X POST "https://your-worker.workers.dev/apps/ws-app/events" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "my-event",
+    "channel": "my-channel",
+    "data": "{\"message\":\"Hello Serverless World\"}"
+  }'</code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Admin Authentication Modal Overlay -->
+  <div id="login-modal" class="modal-overlay">
+    <div class="login-card">
+      <div class="login-header">
+        <div class="login-logo">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="url(#grad2)" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+              <linearGradient id="grad2" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#6366F1"/>
+                <stop offset="1" stop-color="#A855F7"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <h2>WebSocket <span>Serverless</span> Console</h2>
+        <p>Admin Authentication Required</p>
+      </div>
+
+      <div class="cf-one-banner">
+        <span class="cf-icon">🛡️</span>
+        <div class="cf-text">
+          <strong>Cloudflare One Integration Active</strong>
+          <span>Requests with Cloudflare Access JWT will authenticate automatically.</span>
+        </div>
+      </div>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label for="login-username">Admin Username</label>
+          <input type="text" id="login-username" class="input-field" placeholder="Default: admin" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label for="login-password">Admin Password</label>
+          <input type="password" id="login-password" class="input-field" placeholder="Default: ws-admin-secret" required autocomplete="current-password">
+        </div>
+
+        <div id="login-error" class="login-error hidden">Invalid credentials. Please try again.</div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="btn-login-submit">
+          Sign In to Admin Console
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

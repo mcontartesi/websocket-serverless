@@ -1,0 +1,41 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "websocket-serverless",
+  "main": "src/index.ts",
+  "compatibility_date": "2024-12-30",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "CHANNEL_DO",
+        "class_name": "ChannelDO"
+      },
+      {
+        "name": "WEBSOCKET_HUB",
+        "class_name": "WebsocketHub"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_classes": [
+        "ChannelDO",
+        "WebsocketHub"
+      ]
+    }
+  ],
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS"
+  },
+  "vars": {
+    "DEFAULT_APP_ID": "ws-app",
+    "DEFAULT_APP_KEY": "ws-key",
+    "DEFAULT_APP_SECRET": "ws-secret",
+    "ADMIN_USERNAME": "admin",
+    "ADMIN_PASSWORD": "ws-admin-secret"
+  }
+}
