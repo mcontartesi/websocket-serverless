@@ -1,5 +1,5 @@
 import { DurableObject } from 'cloudflare:workers';
-import { Env } from './ChannelDO';
+import type { Env } from './ChannelDO';
 
 export class WebsocketHub extends DurableObject<Env> {
   private activeChannels: Set<string> = new Set();
@@ -36,7 +36,7 @@ export class WebsocketHub extends DurableObject<Env> {
       const filterPrefix = url.searchParams.get('filter_by_prefix') || '';
       let channelsList = Array.from(this.activeChannels);
       if (filterPrefix) {
-        channelsList = channelsList.filter(c => c.startsWith(filterPrefix));
+        channelsList = channelsList.filter((c) => c.startsWith(filterPrefix));
       }
       return Response.json({ channels: channelsList });
     }

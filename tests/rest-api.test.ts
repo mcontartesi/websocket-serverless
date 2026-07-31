@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import worker from '../src/index';
 
 describe('Worker REST API & Health Check', () => {
@@ -7,7 +7,7 @@ describe('Worker REST API & Health Check', () => {
     DEFAULT_APP_KEY: 'ws-key',
     DEFAULT_APP_SECRET: 'ws-secret',
     ADMIN_USERNAME: 'admin',
-    ADMIN_PASSWORD: 'ws-admin-secret'
+    ADMIN_PASSWORD: 'ws-admin-secret',
   };
   const ctx: any = { waitUntil: () => {} };
 
@@ -26,8 +26,8 @@ describe('Worker REST API & Health Check', () => {
     // Cloudflare Access header auth
     const req = new Request('http://localhost/api/admin/info', {
       headers: {
-        'Cf-Access-Authenticated-User-Email': 'admin@company.com'
-      }
+        'Cf-Access-Authenticated-User-Email': 'admin@company.com',
+      },
     });
     const res = await worker.fetch(req, env, ctx);
     expect(res.status).toBe(200);
@@ -47,7 +47,7 @@ describe('Worker REST API & Health Check', () => {
   it('should reject invalid App ID on /events endpoint', async () => {
     const req = new Request('http://localhost/apps/invalid-app/events', {
       method: 'POST',
-      body: JSON.stringify({ name: 'event', channel: 'ch1', data: {} })
+      body: JSON.stringify({ name: 'event', channel: 'ch1', data: {} }),
     });
     const res = await worker.fetch(req, env, ctx);
     expect(res.status).toBe(404);

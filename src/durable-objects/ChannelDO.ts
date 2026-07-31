@@ -1,14 +1,14 @@
 import { DurableObject } from 'cloudflare:workers';
-import {
-  PusherMessage,
-  SubscribeData,
-  PresenceUserData,
-  WebSocketAttachment,
-  ChannelsListResponse,
-  UsersListResponse
-} from '../types/pusher';
-import { verifyPrivateChannelAuth, verifyPresenceChannelAuth } from '../services/auth';
+import { verifyPresenceChannelAuth, verifyPrivateChannelAuth } from '../services/auth';
 import { dispatchWebhooks } from '../services/webhook';
+import {
+  ChannelsListResponse,
+  type PresenceUserData,
+  type PusherMessage,
+  type SubscribeData,
+  UsersListResponse,
+  type WebSocketAttachment,
+} from '../types/pusher';
 
 export interface Env {
   CHANNEL_DO: DurableObjectNamespace;
@@ -51,7 +51,7 @@ export class ChannelDO extends DurableObject<Env> {
         socketId,
         appId,
         channels: new Set(),
-        presenceData: {}
+        presenceData: {},
       };
 
       this.ctx.acceptWebSocket(server, [socketId]);
@@ -62,8 +62,8 @@ export class ChannelDO extends DurableObject<Env> {
         event: 'pusher:connection_established',
         data: JSON.stringify({
           socket_id: socketId,
-          activity_timeout: 120
-        })
+          activity_timeout: 120,
+        }),
       };
       server.send(JSON.stringify(welcome));
 
@@ -83,13 +83,13 @@ export class ChannelDO extends DurableObject<Env> {
       return Response.json({
         occupied: sockets.length > 0,
         subscription_count: sockets.length,
-        user_count: presenceUsers.length
+        user_count: presenceUsers.length,
       });
     }
 
     if (request.method === 'GET' && path === '/users') {
       const users = this.getPresenceUsers();
-      return Response.json({ users: users.map(u => ({ id: u.user_id })) });
+      return Response.json({ users: users.map((u) => ({ id: u.user_id })) });
     }
 
     return new Response('Not found', { status: 404 });
@@ -148,12 +148,12 @@ export class ChannelDO extends DurableObject<Env> {
           const presenceUserData = attachment.presenceData[channelName];
 
           // Check if user still has other active sockets in this channel
-          const remainingUsers = this.getPresenceUsers().filter(u => u.user_id === presenceUserData.user_id);
+          const remainingUsers = this.getPresenceUsers().filter((u) => u.user_id === presenceUserData.user_id);
           if (remainingUsers.length <= 1) {
             this.broadcastToSockets({
               event: 'pusher_internal:member_removed',
               channel: channelName,
-              data: JSON.stringify({ user_id: presenceUserData.user_id })
+              data: JSON.stringify({ user_id: presenceUserData.user_id }),
             });
           }
         }
@@ -163,9 +163,7 @@ export class ChannelDO extends DurableObject<Env> {
     if (isLastConnectionInChannel && this.channelName) {
       const appSecret = this.env.DEFAULT_APP_SECRET || 'ws-secret';
       const appKey = this.env.DEFAULT_APP_KEY || 'ws-key';
-      dispatchWebhooks([], appKey, appSecret, [
-        { name: 'channel_vacated', channel: this.channelName }
-      ]);
+      dispatchWebhooks([], appKey, appSecret, [{ name: 'channel_vacated', channel: this.channelName }]);
     }
   }
 
@@ -187,13 +185,15 @@ export class ChannelDO extends DurableObject<Env> {
         appKey,
         appSecret,
         attachment.socketId,
-        channelName
+        channelName,
       );
       if (!valid) {
-        ws.send(JSON.stringify({
-          event: 'pusher:error',
-          data: { code: 4009, message: `Connection is unauthorized for channel ${channelName}` }
-        }));
+        ws.send(
+          JSON.stringify({
+            event: 'pusher:error',
+            data: { code: 4009, message: `Connection is unauthorized for channel ${channelName}` },
+          }),
+        );
         return;
       }
     } else if (channelName.startsWith('presence-')) {
@@ -203,13 +203,15 @@ export class ChannelDO extends DurableObject<Env> {
         appSecret,
         attachment.socketId,
         channelName,
-        data.channel_data
+        data.channel_data,
       );
       if (!valid) {
-        ws.send(JSON.stringify({
-          event: 'pusher:error',
-          data: { code: 4009, message: `Connection is unauthorized for presence channel ${channelName}` }
-        }));
+        ws.send(
+          JSON.stringify({
+            event: 'pusher:error',
+            data: { code: 4009, message: `Connection is unauthorized for presence channel ${channelName}` },
+          }),
+        );
         return;
       }
     }
@@ -223,7 +225,7 @@ export class ChannelDO extends DurableObject<Env> {
         const parsed = JSON.parse(data.channel_data);
         presenceUserData = {
           user_id: String(parsed.user_id),
-          user_info: parsed.user_info || {}
+          user_info: parsed.user_info || {},
         };
         if (!attachment.presenceData) attachment.presenceData = {};
         attachment.presenceData[channelName] = presenceUserData;
@@ -245,42 +247,47 @@ export class ChannelDO extends DurableObject<Env> {
         hash[user.user_id] = user.user_info || {};
       }
 
-      ws.send(JSON.stringify({
-        event: 'pusher:subscription_succeeded',
-        channel: channelName,
-        data: JSON.stringify({
-          presence: {
-            ids,
-            hash,
-            count: ids.length
-          }
-        })
-      }));
+      ws.send(
+        JSON.stringify({
+          event: 'pusher:subscription_succeeded',
+          channel: channelName,
+          data: JSON.stringify({
+            presence: {
+              ids,
+              hash,
+              count: ids.length,
+            },
+          }),
+        }),
+      );
 
       // 2. Broadcast pusher_internal:member_added to other sockets
       if (presenceUserData) {
-        this.broadcastToSockets({
-          event: 'pusher_internal:member_added',
-          channel: channelName,
-          data: JSON.stringify({
-            user_id: presenceUserData.user_id,
-            user_info: presenceUserData.user_info
-          })
-        }, attachment.socketId);
+        this.broadcastToSockets(
+          {
+            event: 'pusher_internal:member_added',
+            channel: channelName,
+            data: JSON.stringify({
+              user_id: presenceUserData.user_id,
+              user_info: presenceUserData.user_info,
+            }),
+          },
+          attachment.socketId,
+        );
       }
     } else {
-      ws.send(JSON.stringify({
-        event: 'pusher:subscription_succeeded',
-        channel: channelName,
-        data: {}
-      }));
+      ws.send(
+        JSON.stringify({
+          event: 'pusher:subscription_succeeded',
+          channel: channelName,
+          data: {},
+        }),
+      );
     }
 
     // Webhook for channel_occupied
     if (isFirstConnection) {
-      dispatchWebhooks([], appKey, appSecret, [
-        { name: 'channel_occupied', channel: channelName }
-      ]);
+      dispatchWebhooks([], appKey, appSecret, [{ name: 'channel_occupied', channel: channelName }]);
     }
   }
 
@@ -295,7 +302,7 @@ export class ChannelDO extends DurableObject<Env> {
         this.broadcastToSockets({
           event: 'pusher_internal:member_removed',
           channel: channelName,
-          data: JSON.stringify({ user_id: presenceUserData.user_id })
+          data: JSON.stringify({ user_id: presenceUserData.user_id }),
         });
       }
     }
@@ -305,9 +312,7 @@ export class ChannelDO extends DurableObject<Env> {
     if (this.ctx.getWebSockets().length === 0) {
       const appKey = this.env.DEFAULT_APP_KEY || 'ws-key';
       const appSecret = this.env.DEFAULT_APP_SECRET || 'ws-secret';
-      dispatchWebhooks([], appKey, appSecret, [
-        { name: 'channel_vacated', channel: channelName }
-      ]);
+      dispatchWebhooks([], appKey, appSecret, [{ name: 'channel_vacated', channel: channelName }]);
     }
   }
 
@@ -322,19 +327,25 @@ export class ChannelDO extends DurableObject<Env> {
     if (!attachment.channels.has(msg.channel)) return;
 
     // Broadcast to all sockets EXCEPT sender
-    this.broadcastToSockets({
-      event: msg.event,
-      channel: msg.channel,
-      data: msg.data
-    }, attachment.socketId);
+    this.broadcastToSockets(
+      {
+        event: msg.event,
+        channel: msg.channel,
+        data: msg.data,
+      },
+      attachment.socketId,
+    );
   }
 
   private async broadcastEvent(event: string, data: any, excludeSocketId?: string) {
-    this.broadcastToSockets({
-      event,
-      channel: this.channelName,
-      data: typeof data === 'string' ? data : JSON.stringify(data)
-    }, excludeSocketId);
+    this.broadcastToSockets(
+      {
+        event,
+        channel: this.channelName,
+        data: typeof data === 'string' ? data : JSON.stringify(data),
+      },
+      excludeSocketId,
+    );
   }
 
   private broadcastToSockets(msg: PusherMessage, excludeSocketId?: string) {

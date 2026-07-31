@@ -42,7 +42,8 @@ export interface WebSocketAttachment {
 }
 
 export interface TriggerEventPayload {
-  name: string;
+  name?: string;
+  event?: string;
   data: string | object;
   channels?: string[];
   channel?: string;

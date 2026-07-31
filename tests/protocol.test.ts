@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { PusherMessage } from '../src/types/pusher';
+import { describe, expect, it } from 'vitest';
+import type { PusherMessage } from '../src/types/pusher';
 
 describe('Pusher Protocol Envelopes', () => {
   it('should construct valid pusher:connection_established envelope', () => {
@@ -8,8 +8,8 @@ describe('Pusher Protocol Envelopes', () => {
       event: 'pusher:connection_established',
       data: JSON.stringify({
         socket_id: socketId,
-        activity_timeout: 120
-      })
+        activity_timeout: 120,
+      }),
     };
 
     expect(msg.event).toBe('pusher:connection_established');
@@ -27,9 +27,9 @@ describe('Pusher Protocol Envelopes', () => {
         presence: {
           ids: ['user-1', 'user-2'],
           hash: { 'user-1': { name: 'Max' }, 'user-2': { name: 'Alex' } },
-          count: 2
-        }
-      })
+          count: 2,
+        },
+      }),
     };
 
     expect(msg.channel).toBe('presence-lobby');

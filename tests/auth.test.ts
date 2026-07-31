@@ -1,12 +1,12 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  hmacSha256Hex,
-  verifyPrivateChannelAuth,
-  verifyPresenceChannelAuth,
-  verifyRestApiSignature,
-  generateSocketId,
   checkAdminAuth,
-  createAdminSessionToken
+  createAdminSessionToken,
+  generateSocketId,
+  hmacSha256Hex,
+  verifyPresenceChannelAuth,
+  verifyPrivateChannelAuth,
+  verifyRestApiSignature,
 } from '../src/services/auth';
 
 describe('Auth & Crypto Service', () => {
@@ -45,14 +45,7 @@ describe('Auth & Crypto Service', () => {
     const expectedSig = await hmacSha256Hex(appSecret, stringToSign);
     const authString = `${appKey}:${expectedSig}`;
 
-    const isValid = await verifyPresenceChannelAuth(
-      authString,
-      appKey,
-      appSecret,
-      socketId,
-      channelName,
-      channelData
-    );
+    const isValid = await verifyPresenceChannelAuth(authString, appKey, appSecret, socketId, channelName, channelData);
     expect(isValid).toBe(true);
   });
 
@@ -63,7 +56,7 @@ describe('Auth & Crypto Service', () => {
     const queryParams: Record<string, string> = {
       auth_key: appKey,
       auth_timestamp: '1600000000',
-      auth_version: '1.0'
+      auth_version: '1.0',
     };
 
     const stringToSign = `POST\n${path}\nauth_key=${appKey}&auth_timestamp=1600000000&auth_version=1.0`;
@@ -78,8 +71,8 @@ describe('Auth & Crypto Service', () => {
     const req = new Request('http://localhost/api/admin/info', {
       headers: {
         'Cf-Access-Authenticated-User-Email': 'admin@company.com',
-        'Cf-Access-Jwt-Assertion': 'mock.jwt.token'
-      }
+        'Cf-Access-Jwt-Assertion': 'mock.jwt.token',
+      },
     });
 
     const result = await checkAdminAuth(req, 'admin', 'secret');
@@ -92,8 +85,8 @@ describe('Auth & Crypto Service', () => {
     const token = await createAdminSessionToken('admin', 'secret');
     const req = new Request('http://localhost/api/admin/info', {
       headers: {
-        'Authorization': `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     const result = await checkAdminAuth(req, 'admin', 'secret');

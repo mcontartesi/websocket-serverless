@@ -1,5 +1,5 @@
+import type { WebhookConfig } from '../types/pusher';
 import { hmacSha256Hex } from './auth';
-import { WebhookConfig } from '../types/pusher';
 
 export interface WebhookEventPayload {
   name: 'channel_occupied' | 'channel_vacated' | 'member_added' | 'member_removed' | 'client_event';
@@ -14,19 +14,19 @@ export async function dispatchWebhooks(
   webhooks: WebhookConfig[],
   appKey: string,
   appSecret: string,
-  events: WebhookEventPayload[]
+  events: WebhookEventPayload[],
 ): Promise<void> {
   if (!webhooks || webhooks.length === 0 || events.length === 0) return;
 
   const now = Date.now();
 
   for (const hook of webhooks) {
-    const matchingEvents = events.filter(e => hook.events.includes(e.name));
+    const matchingEvents = events.filter((e) => hook.events.includes(e.name));
     if (matchingEvents.length === 0) continue;
 
     const payload = JSON.stringify({
       time_ms: now,
-      events: matchingEvents
+      events: matchingEvents,
     });
 
     const secret = hook.secret || appSecret;
@@ -39,10 +39,10 @@ export async function dispatchWebhooks(
         headers: {
           'Content-Type': 'application/json',
           'X-Pusher-Key': appKey,
-          'X-Pusher-Signature': signature
+          'X-Pusher-Signature': signature,
         },
-        body: payload
-      }).catch(err => {
+        body: payload,
+      }).catch((err) => {
         console.error(`[Poxa Webhook Error] Failed to deliver to ${hook.url}:`, err);
       });
     } catch (e) {

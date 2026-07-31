@@ -8,7 +8,16 @@
     "deploy": "wrangler deploy",
     "build": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "biome check src/ tests/",
+    "format": "biome check --write src/ tests/",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "biome check --write"
+    ]
   },
   "keywords": [
     "pusher",
@@ -27,12 +36,19 @@
     "url": "git+https://github.com/mcontartesi/websocket-serverless.git"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.5.6",
     "@cloudflare/workers-types": "^4.20241230.0",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
-    "semantic-release": "^24.2.1",
+    "@vitest/coverage-v8": "^4.1.10",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.3.0",
+    "semantic-release": "^25.0.8",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.8",
-    "wrangler": "^3.100.0"
+    "vitest": "^4.1.10",
+    "wrangler": "^4.118.0"
+  },
+  "dependencies": {
+    "hono": "^4.12.33"
   }
 }

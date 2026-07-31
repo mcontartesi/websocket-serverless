@@ -48,7 +48,7 @@ Incoming WebSockets Connection / HTTP REST API
 
 ### 1. Edge Worker Router (`src/index.ts`)
 
-The Cloudflare Worker acts as the entry gateway for incoming traffic:
+The Cloudflare Worker acts as the entry gateway for incoming traffic, utilizing the **Hono** framework for lightweight, fast, and maintainable routing:
 
 - **HTTP REST API Endpoints**: Intercepts REST requests directed to `/apps/:app_id/events`, `/apps/:app_id/batch_events`, `/apps/:app_id/channels`, and `/api/admin/*`.
 - **WebSocket Upgrade Requests**: Validates path parameters (`/app/:app_key`) and proxies the HTTP Upgrade request to the target `ChannelDO` Durable Object instance.

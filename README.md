@@ -43,7 +43,7 @@ Designed as a modern serverless successor to self-hosted servers like Poxa (Elix
   - **Public Channels**: Unauthenticated broadcast channels.
   - **Private Channels (`private-*`)**: HMAC-SHA256 authenticated channels for protected messaging.
   - **Presence Channels (`presence-*`)**: User tracking with automatic `pusher_internal:member_added` and `pusher_internal:member_removed` event fan-out.
-  - **Client Events (`client-*`)**: Direct client-to-client event publishing.
+  - **Hono Routing Framework**: Ultra-fast routing layer handling the edge REST API requests and WebSocket upgrade lifecycle.
 - **Pusher REST API v1**: Complete implementation of publishing endpoints (`/apps/:app_id/events`, `/apps/:app_id/batch_events`, `/apps/:app_id/channels`, `/apps/:app_id/channels/:channel_name/users`).
 - **Serverless Webhooks Engine**: Dispatches background HTTP POST payloads for channel occupancy (`channel_occupied`, `channel_vacated`) and presence state transitions.
 - **Integrated Admin Dashboard**: Self-hosted glassmorphic web dashboard containing real-time channel metrics, interactive REST event studio, live socket debugging inspector, and code generation tools.
@@ -388,7 +388,8 @@ Configuration parameters are declared in `wrangler.jsonc` or environment secrets
 
 The project incorporates three automated GitHub Actions workflows:
 
-- **CI Pipeline (`.github/workflows/ci.yml`)**: Executes TypeScript type checks (`npx tsc --noEmit`) and Vitest test suite on all pushes and pull requests.
+- **CI Pipeline (`.github/workflows/ci.yml`)**: Executes TypeScript type checks (`npx tsc --noEmit`), Biome linter, and Vitest test suite with code coverage on all pushes and pull requests.
+- **Code Quality Guardrails**: Enforces code style and prevents bad commits using `Husky`, `lint-staged`, and `@biomejs/biome`.
 - **Automated Versioning (`.github/workflows/release.yml`)**: Uses `semantic-release` to generate semver releases, tags, changelog updates, and GitHub Release entries.
 - **Deployment Pipeline (`.github/workflows/deploy.yml`)**: Deploys application updates to Cloudflare Workers using Wrangler Action upon publishing a release.
 

@@ -16,14 +16,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function getAuthHeaders() {
     const token = sessionStorage.getItem('ws_admin_token');
-    return token ? { 'Authorization': `Bearer ${token}` } : {};
+    return token ? { Authorization: `Bearer ${token}` } : {};
   }
 
   async function checkAuth() {
     try {
       // 1. Check if Cloudflare One / Access or active token authenticates automatically
       const res = await fetch('/api/admin/check-auth', {
-        headers: getAuthHeaders()
+        headers: getAuthHeaders(),
       });
       const data = await res.json();
 
@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // 2. Try fetching protected info endpoint with stored token
       const infoRes = await fetch('/api/admin/info', {
-        headers: getAuthHeaders()
+        headers: getAuthHeaders(),
       });
       if (infoRes.ok) {
         const infoData = await infoRes.json();
@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const res = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ username, password }),
       });
 
       const data = await res.json();
@@ -116,15 +116,15 @@ document.addEventListener('DOMContentLoaded', () => {
     studio: { title: 'Event Studio', subtitle: 'Publish events via Pusher REST API to connected clients' },
     debugger: { title: 'Live Debugger', subtitle: 'Inspect live WebSocket messages and event payloads' },
     channels: { title: 'Channels Explorer', subtitle: 'Active channels index and presence occupancy' },
-    keys: { title: 'App Credentials', subtitle: 'API keys, secrets, and client SDK integration code' }
+    keys: { title: 'App Credentials', subtitle: 'API keys, secrets, and client SDK integration code' },
   };
 
-  navItems.forEach(item => {
+  navItems.forEach((item) => {
     item.addEventListener('click', () => {
       const tabKey = item.getAttribute('data-tab');
 
-      navItems.forEach(n => n.classList.remove('active'));
-      tabContents.forEach(t => t.classList.remove('active'));
+      navItems.forEach((n) => n.classList.remove('active'));
+      tabContents.forEach((t) => t.classList.remove('active'));
 
       item.classList.add('active');
       document.getElementById(`tab-${tabKey}`).classList.add('active');
@@ -140,11 +140,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const snippetTabs = document.querySelectorAll('.snippet-tab');
   const snippetContents = document.querySelectorAll('.snippet-content');
 
-  snippetTabs.forEach(tab => {
+  snippetTabs.forEach((tab) => {
     tab.addEventListener('click', () => {
       const target = tab.getAttribute('data-snippet');
-      snippetTabs.forEach(t => t.classList.remove('active'));
-      snippetContents.forEach(c => c.classList.remove('active'));
+      snippetTabs.forEach((t) => t.classList.remove('active'));
+      snippetContents.forEach((c) => c.classList.remove('active'));
 
       tab.classList.add('active');
       document.getElementById(`snippet-${target}`).classList.add('active');
@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const channelsRes = await fetch('/apps/ws-app/channels', {
-        headers: getAuthHeaders()
+        headers: getAuthHeaders(),
       });
       if (channelsRes.ok) {
         const data = await channelsRes.json();
@@ -183,13 +183,14 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    tbody.innerHTML = chKeys.map(key => {
-      const isPresence = key.startsWith('presence-');
-      const isPrivate = key.startsWith('private-');
-      const type = isPresence ? 'Presence' : (isPrivate ? 'Private' : 'Public');
-      const users = channels[key].user_count !== undefined ? channels[key].user_count : '-';
+    tbody.innerHTML = chKeys
+      .map((key) => {
+        const isPresence = key.startsWith('presence-');
+        const isPrivate = key.startsWith('private-');
+        const type = isPresence ? 'Presence' : isPrivate ? 'Private' : 'Public';
+        const users = channels[key].user_count !== undefined ? channels[key].user_count : '-';
 
-      return `
+        return `
         <tr>
           <td><strong>${key}</strong></td>
           <td><span class="version-tag">${type}</span></td>
@@ -200,7 +201,8 @@ document.addEventListener('DOMContentLoaded', () => {
           </td>
         </tr>
       `;
-    }).join('');
+      })
+      .join('');
   }
 
   // --- Toast Notification Helper ---
@@ -214,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const icons = {
       success: '✅',
       error: '⚠️',
-      info: 'ℹ️'
+      info: 'ℹ️',
     };
 
     toast.innerHTML = `
@@ -260,8 +262,8 @@ document.addEventListener('DOMContentLoaded', () => {
           channel,
           name: event,
           event: event,
-          data: payload
-        })
+          data: payload,
+        }),
       });
 
       if (res.ok) {
@@ -287,7 +289,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const appId = document.getElementById('cred-app-id')?.value || 'ws-app';
 
     let data;
-    try { data = JSON.parse(rawData); } catch { data = rawData; }
+    try {
+      data = JSON.parse(rawData);
+    } catch {
+      data = rawData;
+    }
 
     const resBox = document.getElementById('studio-response');
     const resStatus = document.getElementById('studio-status-code');
@@ -297,7 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const response = await fetch(`/apps/${appId}/events`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-        body: JSON.stringify({ channel, name: event, event: event, data })
+        body: JSON.stringify({ channel, name: event, event: event, data }),
       });
 
       resBox.classList.remove('hidden');
@@ -350,11 +356,15 @@ document.addEventListener('DOMContentLoaded', () => {
         pusherClient = new Pusher('ws-key', {
           cluster: 'mt1',
           wsHost: window.location.hostname,
-          wsPort: window.location.port ? parseInt(window.location.port) : (window.location.protocol === 'https:' ? 443 : 80),
+          wsPort: window.location.port
+            ? parseInt(window.location.port)
+            : window.location.protocol === 'https:'
+              ? 443
+              : 80,
           wssPort: window.location.port ? parseInt(window.location.port) : 443,
           forceTLS: window.location.protocol === 'https:',
           disableStats: true,
-          enabledTransports: ['ws', 'wss']
+          enabledTransports: ['ws', 'wss'],
         });
 
         pusherClient.connection.bind('connected', () => {
@@ -398,10 +408,12 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('stat-connections').textContent = '1';
 
         // Send Pusher subscribe message
-        ws.send(JSON.stringify({
-          event: 'pusher:subscribe',
-          data: { channel: chName }
-        }));
+        ws.send(
+          JSON.stringify({
+            event: 'pusher:subscribe',
+            data: { channel: chName },
+          }),
+        );
       };
 
       ws.onmessage = (evt) => {
@@ -414,7 +426,10 @@ document.addEventListener('DOMContentLoaded', () => {
             logDebug('system', `Subscribed successfully to channel '${chName}'`);
           } else {
             const payload = typeof msg.data === 'string' ? msg.data : JSON.stringify(msg.data, null, 2);
-            logDebug('event', `Event: <strong>${msg.event}</strong> on <i>${msg.channel || chName}</i> <pre>${payload}</pre>`);
+            logDebug(
+              'event',
+              `Event: <strong>${msg.event}</strong> on <i>${msg.channel || chName}</i> <pre>${payload}</pre>`,
+            );
           }
         } catch {
           logDebug('event', `Raw Message: ${evt.data}`);
@@ -429,7 +444,6 @@ document.addEventListener('DOMContentLoaded', () => {
       ws.onerror = (err) => {
         logDebug('error', `Native WebSocket Error`);
       };
-
     } catch (err) {
       const errMsg = err && err.message ? err.message : String(err);
       logDebug('error', `Failed to connect WebSocket: ${errMsg}`);
@@ -454,6 +468,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initial Auth Check & Metric Load
   document.getElementById('btn-refresh').addEventListener('click', fetchMetrics);
   document.getElementById('btn-refresh-channels').addEventListener('click', fetchMetrics);
-  
+
   checkAuth();
 });

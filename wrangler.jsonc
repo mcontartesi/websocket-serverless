@@ -3,9 +3,7 @@
   "name": "websocket-serverless",
   "main": "src/index.ts",
   "compatibility_date": "2024-12-30",
-  "compatibility_flags": [
-    "nodejs_compat"
-  ],
+  "compatibility_flags": ["nodejs_compat"],
   "durable_objects": {
     "bindings": [
       {
@@ -21,10 +19,7 @@
   "migrations": [
     {
       "tag": "v1",
-      "new_classes": [
-        "ChannelDO",
-        "WebsocketHub"
-      ]
+      "new_classes": ["ChannelDO", "WebsocketHub"]
     }
   ],
   "assets": {

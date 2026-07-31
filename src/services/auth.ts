@@ -8,17 +8,11 @@ export async function hmacSha256Hex(secret: string, data: string): Promise<strin
   const keyData = encoder.encode(secret);
   const msgData = encoder.encode(data);
 
-  const cryptoKey = await crypto.subtle.importKey(
-    'raw',
-    keyData,
-    { name: 'HMAC', hash: 'SHA-256' },
-    false,
-    ['sign']
-  );
+  const cryptoKey = await crypto.subtle.importKey('raw', keyData, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
 
   const signature = await crypto.subtle.sign('HMAC', cryptoKey, msgData);
   return Array.from(new Uint8Array(signature))
-    .map(b => b.toString(16).padStart(2, '0'))
+    .map((b) => b.toString(16).padStart(2, '0'))
     .join('');
 }
 
@@ -27,7 +21,7 @@ export async function md5Hex(data: string): Promise<string> {
   const msgData = encoder.encode(data);
   const hashBuffer = await crypto.subtle.digest('MD5', msgData);
   return Array.from(new Uint8Array(hashBuffer))
-    .map(b => b.toString(16).padStart(2, '0'))
+    .map((b) => b.toString(16).padStart(2, '0'))
     .join('');
 }
 
@@ -40,7 +34,7 @@ export async function verifyPrivateChannelAuth(
   appKey: string,
   appSecret: string,
   socketId: string,
-  channelName: string
+  channelName: string,
 ): Promise<boolean> {
   if (!authString || !authString.includes(':')) return false;
 
@@ -63,17 +57,15 @@ export async function verifyPresenceChannelAuth(
   appSecret: string,
   socketId: string,
   channelName: string,
-  channelDataStr?: string
+  channelDataStr?: string,
 ): Promise<boolean> {
   if (!authString || !authString.includes(':')) return false;
 
   const [providedKey, providedSig] = authString.split(':');
   if (providedKey !== appKey) return false;
 
-  const stringToSign = channelDataStr
-    ? `${socketId}:${channelName}:${channelDataStr}`
-    : `${socketId}:${channelName}`;
-    
+  const stringToSign = channelDataStr ? `${socketId}:${channelName}:${channelDataStr}` : `${socketId}:${channelName}`;
+
   const expectedSig = await hmacSha256Hex(appSecret, stringToSign);
 
   return providedSig === expectedSig;
@@ -88,7 +80,7 @@ export async function verifyRestApiSignature(
   path: string,
   queryParams: Record<string, string>,
   body: string,
-  appSecret: string
+  appSecret: string,
 ): Promise<boolean> {
   const providedSig = queryParams['auth_signature'];
   if (!providedSig) return false;
@@ -102,7 +94,7 @@ export async function verifyRestApiSignature(
 
   const sortedKeys = Object.keys(paramsToSign).sort();
   const queryString = sortedKeys
-    .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(paramsToSign[key])}`)
+    .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(paramsToSign[key])}`)
     .join('&');
 
   const stringToSign = `${method.toUpperCase()}\n${path}\n${queryString}`;
@@ -129,7 +121,11 @@ export interface AdminAuthResult {
 /**
  * Validates admin session or Cloudflare One (Cloudflare Access) headers.
  */
-export async function checkAdminAuth(request: Request, adminUser: string, adminSecret: string): Promise<AdminAuthResult> {
+export async function checkAdminAuth(
+  request: Request,
+  adminUser: string,
+  adminSecret: string,
+): Promise<AdminAuthResult> {
   // 1. Cloudflare One / Cloudflare Access Integration
   const cfJwt = request.headers.get('Cf-Access-Jwt-Assertion');
   const cfUserEmail = request.headers.get('Cf-Access-Authenticated-User-Email');
@@ -138,7 +134,7 @@ export async function checkAdminAuth(request: Request, adminUser: string, adminS
     return {
       authenticated: true,
       method: 'cloudflare_one',
-      user: cfUserEmail || 'Cloudflare One Admin'
+      user: cfUserEmail || 'Cloudflare One Admin',
     };
   }
 
@@ -151,7 +147,7 @@ export async function checkAdminAuth(request: Request, adminUser: string, adminS
       return {
         authenticated: true,
         method: 'password',
-        user: adminUser
+        user: adminUser,
       };
     }
   }
@@ -162,4 +158,3 @@ export async function checkAdminAuth(request: Request, adminUser: string, adminS
 export async function createAdminSessionToken(adminUser: string, adminSecret: string): Promise<string> {
   return hmacSha256Hex(adminSecret, `admin-session:${adminUser}`);
 }
-
