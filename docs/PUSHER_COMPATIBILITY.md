@@ -1,30 +1,88 @@
-# Pusher Protocol v7 Compatibility Matrix — WebSocket Serverless
+# Pusher Protocol v7 Compatibility Reference
 
-Author: **Maximiliano Contartesi**
+Author: Maximiliano Contartesi  
+License: MIT
 
 WebSocket Serverless implements full compatibility with the **Pusher Channels Wire Protocol version 7**.
 
-## Supported Protocol Events
+---
 
-| Wire Event Name | Direction | Description | Status |
-|---|---|---|---|
-| `pusher:connection_established` | Server -> Client | Sends `socket_id` and `activity_timeout` | ✅ Supported |
-| `pusher:ping` | Client -> Server | Heartbeat ping from client | ✅ Supported |
-| `pusher:pong` | Server -> Client | Heartbeat response to ping | ✅ Supported |
-| `pusher:error` | Server -> Client | Connection or auth error notification | ✅ Supported |
-| `pusher:subscribe` | Client -> Server | Request to join public, private or presence channel | ✅ Supported |
-| `pusher:unsubscribe` | Client -> Server | Request to leave channel | ✅ Supported |
-| `pusher:subscription_succeeded` | Server -> Client | Confirms channel join & sends initial presence state | ✅ Supported |
-| `pusher_internal:member_added` | Server -> Client | Broadcasts new user join in presence channel | ✅ Supported |
-| `pusher_internal:member_removed` | Server -> Client | Broadcasts user departure in presence channel | ✅ Supported |
-| `client-*` | Client -> Client | Peer-to-peer event broadcast | ✅ Supported |
+## Wire Protocol Events Matrix
 
-## Supported REST API Endpoints
+| Wire Event Name | Direction | Payload Structure | Description | Status |
+|---|---|---|---|---|
+| `pusher:connection_established` | Server -> Client | `{"event":"pusher:connection_established","data":"{\"socket_id\":\"...\",\"activity_timeout\":120}"}` | Sent immediately after WebSocket handshake | Supported |
+| `pusher:ping` | Client -> Server | `{"event":"pusher:ping","data":{}}` | Connection heartbeat ping | Supported |
+| `pusher:pong` | Server -> Client | `{"event":"pusher:pong","data":{}}` | Heartbeat response from server | Supported |
+| `pusher:error` | Server -> Client | `{"event":"pusher:error","data":{"code":4009,"message":"..."}}` | Error notification | Supported |
+| `pusher:subscribe` | Client -> Server | `{"event":"pusher:subscribe","data":{"channel":"...","auth":"...","channel_data":"..."}}` | Channel subscription request | Supported |
+| `pusher:unsubscribe` | Client -> Server | `{"event":"pusher:unsubscribe","data":{"channel":"..."}}` | Channel unsubscription request | Supported |
+| `pusher:subscription_succeeded` | Server -> Client | `{"event":"pusher:subscription_succeeded","channel":"...","data":"{...}"}` | Confirms subscription & returns presence hash | Supported |
+| `pusher_internal:member_added` | Server -> Client | `{"event":"pusher_internal:member_added","channel":"...","data":"{\"user_id\":\"...\"}"}` | Broadcasts new occupant in presence channel | Supported |
+| `pusher_internal:member_removed` | Server -> Client | `{"event":"pusher_internal:member_removed","channel":"...","data":"{\"user_id\":\"...\"}"}` | Broadcasts member departure in presence channel | Supported |
+| `client-*` | Client -> Client | `{"event":"client-event-name","channel":"...","data":{...}}` | Peer-to-peer event messaging | Supported |
 
-| Endpoint | Method | Description | Status |
-|---|---|---|---|
-| `/apps/:app_id/events` | `POST` | Trigger an event to one or multiple channels | ✅ Supported |
-| `/apps/:app_id/batch_events` | `POST` | Trigger multiple events in a single batch request | ✅ Supported |
-| `/apps/:app_id/channels` | `GET` | Fetch list of active channels & user counts | ✅ Supported |
-| `/apps/:app_id/channels/:channel_name` | `GET` | Fetch occupancy details for a channel | ✅ Supported |
-| `/apps/:app_id/channels/:channel_name/users` | `GET` | Fetch user list for presence channel | ✅ Supported |
+---
+
+## HTTP REST API v1 Specification
+
+### 1. Trigger Event
+- **Endpoint**: `POST /apps/:app_id/events`
+- **Headers**: `Content-Type: application/json`
+- **Query Parameters**: `auth_key`, `auth_timestamp`, `auth_version`, `auth_signature`, `body_md5` (optional for authenticated REST calls).
+- **Request Body**:
+  ```json
+  {
+    "name": "order:created",
+    "channel": "orders",
+    "data": { "id": 1024, "amount": 99.50 }
+  }
+  ```
+
+### 2. Trigger Batch Events
+- **Endpoint**: `POST /apps/:app_id/batch_events`
+- **Request Body**:
+  ```json
+  {
+    "batch": [
+      { "name": "order:created", "channel": "orders", "data": { "id": 101 } },
+      { "name": "user:registered", "channel": "users", "data": { "id": 202 } }
+    ]
+  }
+  ```
+
+### 3. List Occupied Channels
+- **Endpoint**: `GET /apps/:app_id/channels`
+- **Query Parameters**: `filter_by_prefix` (optional filter, e.g. `presence-`)
+- **Response**:
+  ```json
+  {
+    "channels": {
+      "presence-room-1": { "user_count": 3 },
+      "orders": {}
+    }
+  }
+  ```
+
+### 4. Fetch Channel Information
+- **Endpoint**: `GET /apps/:app_id/channels/:channel_name`
+- **Response**:
+  ```json
+  {
+    "occupied": true,
+    "subscription_count": 5,
+    "user_count": 3
+  }
+  ```
+
+### 5. List Presence Users
+- **Endpoint**: `GET /apps/:app_id/channels/:channel_name/users`
+- **Response**:
+  ```json
+  {
+    "users": [
+      { "id": "user-100" },
+      { "id": "user-101" }
+    ]
+  }
+  ```

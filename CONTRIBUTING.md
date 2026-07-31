@@ -1,27 +1,27 @@
-# Contributing to WebSocket Serverless 🤝
+# Contributing to WebSocket Serverless
 
-Thank you for your interest in contributing to **WebSocket Serverless**! We welcome bug reports, feature requests, documentation improvements, and code contributions.
+Thank you for your interest in contributing to **WebSocket Serverless**. We welcome bug reports, feature requests, documentation improvements, and code contributions.
 
-Author & Maintainer: **Maximiliano Contartesi** ([@mcontartesi](https://github.com/mcontartesi))
+Author & Maintainer: Maximiliano Contartesi ([@mcontartesi](https://github.com/mcontartesi))
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
-1. **Fork the Repository**: Create your own fork on GitHub.
-2. **Clone Locally**:
+1. Fork the Repository on GitHub.
+2. Clone your fork locally:
    ```bash
    git clone https://github.com/mcontartesi/websocket-serverless.git
    cd websocket-serverless
    ```
-3. **Install Dependencies**:
+3. Install project dependencies:
    ```bash
    npm install
    ```
 
 ---
 
-## 🛠️ Local Development & Testing
+## Local Development & Verification
 
 Start the local Wrangler emulation server:
 
@@ -29,7 +29,7 @@ Start the local Wrangler emulation server:
 npm run dev
 ```
 
-Run TypeScript type checking:
+Execute TypeScript type checking:
 
 ```bash
 npx tsc --noEmit
@@ -43,21 +43,20 @@ npm test
 
 ---
 
-## 📝 Commit Conventions (Conventional Commits)
+## Commit Conventions (Conventional Commits)
 
-This repository uses **Semantic Release** to automatically generate version tags and release notes. Please format your commit messages using [Conventional Commits](https://www.conventionalcommits.org/):
+This repository utilizes Semantic Release for automated versioning and release management. Please structure commit messages following the Conventional Commits specification:
 
-- `feat: add new presence channel metadata feature` (Triggers MINOR release)
-- `fix: resolve authorization signature mismatch on private channels` (Triggers PATCH release)
+- `feat: add support for encrypted private channels` (Triggers MINOR release)
+- `fix: resolve channel signature validation error` (Triggers PATCH release)
 - `docs: update deployment instructions in README`
-- `chore: update dependencies`
+- `chore: update development dependencies`
 
 ---
 
-## 🔀 Submitting a Pull Request
+## Submitting a Pull Request
 
-1. Create a feature branch: `git checkout -b feat/my-awesome-feature`
+1. Create a feature branch: `git checkout -b feat/my-feature-name`
 2. Ensure all tests pass (`npm test` and `npx tsc --noEmit`).
 3. Commit your changes following conventional commit syntax.
-4. Push your branch to GitHub and open a Pull Request against `main`.
-5. Maintainers will review your PR and provide feedback promptly.
+4. Push your branch to GitHub and open a Pull Request against the `main` branch.
