@@ -98,6 +98,112 @@ Deploy directly to your Cloudflare account using the Cloudflare Workers Deploy b
 
 ---
 
+## Rapid Testing & Pusher Client Setup Guide
+
+Follow this 2-minute guide to verify real-time event broadcasting between a browser subscriber and an API publisher.
+
+### 1. Application Credentials Reference
+
+When connecting official Pusher client SDKs, pass the following configuration parameters:
+
+| Parameter | Local Dev Value | Production Value | Description |
+|---|---|---|---|
+| `app_id` | `ws-app` | Configured in `wrangler.jsonc` | Primary Application Identifier |
+| `key` | `ws-key` | Configured in `wrangler.jsonc` | Public Client Key |
+| `secret` | `ws-secret` | Configured in `wrangler.jsonc` | Private HMAC Signature Secret |
+| `cluster` | `mt1` | `mt1` | Required by Pusher JS v8 SDK |
+| `wsHost` | `localhost` | `your-worker.workers.dev` | Worker domain host |
+| `wsPort` | `8787` | `443` | HTTP / WS Port |
+| `wssPort` | `8787` | `443` | HTTPS / WSS Port |
+| `forceTLS` | `false` | `true` | Enforces WSS encrypted sockets |
+
+### 2. Step 1: Create HTML Subscriber Page
+
+Save the following code as `test-client.html` and open it in your browser:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>WebSocket Serverless Test</title>
+  <!-- Official Pusher JS Library -->
+  <script src="https://js.pusher.com/8.0.1/pusher.min.js"></script>
+</head>
+<body>
+  <h2>Real-Time Event Stream</h2>
+  <div id="status">Connecting...</div>
+  <div id="logs" style="font-family: monospace; background: #1e1e1e; color: #4af626; padding: 15px; border-radius: 8px; margin-top: 15px;"></div>
+
+  <script>
+    // Initialize Pusher Client pointing to your WebSocket Serverless endpoint
+    const pusher = new Pusher('ws-key', {
+      cluster: 'mt1',
+      wsHost: window.location.hostname || 'localhost',
+      wsPort: 8787,
+      wssPort: 8787,
+      forceTLS: false,
+      disableStats: true,
+      enabledTransports: ['ws', 'wss']
+    });
+
+    pusher.connection.bind('connected', () => {
+      document.getElementById('status').innerHTML = '<strong>Connected to WebSocket Serverless!</strong> Socket ID: ' + pusher.connection.socket_id;
+    });
+
+    // Subscribe to a public channel
+    const channel = pusher.subscribe('my-channel');
+
+    // Bind to custom event
+    channel.bind('my-event', function(data) {
+      const logs = document.getElementById('logs');
+      logs.innerHTML += '<div>[' + new Date().toLocaleTimeString() + '] Event received: ' + JSON.stringify(data) + '</div>';
+    });
+  </script>
+</body>
+</html>
+```
+
+### 3. Step 2: Publish Test Event via cURL
+
+In your terminal, execute the following HTTP REST call:
+
+```bash
+curl -X POST "http://localhost:8787/apps/ws-app/events" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "channel": "my-channel",
+    "name": "my-event",
+    "data": { "message": "Real-time delivery confirmed!", "timestamp": 1700000000 }
+  }'
+```
+
+The event will instantly appear rendered inside the browser window on `test-client.html`.
+
+### 4. Step 3: Publish Test Event via Node.js
+
+Alternatively, publish events using the official `pusher` Node.js library:
+
+```javascript
+const Pusher = require('pusher');
+
+const pusher = new Pusher({
+  appId: 'ws-app',
+  key: 'ws-key',
+  secret: 'ws-secret',
+  host: 'localhost',
+  port: '8787',
+  useTLS: false
+});
+
+pusher.trigger('my-channel', 'my-event', {
+  user: 'Maximiliano',
+  text: 'Hello from Node.js backend!'
+});
+```
+
+---
+
 ## Architecture & Execution Model
 
 ```
